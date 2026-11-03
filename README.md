@@ -4,7 +4,7 @@ Eleição oficial mensal das piores traquinagens do grupo.
 
 ![O mais otário — ranking](docs/screenshot.png)
 
-App Next.js para ranquear quem é o maior otário do rolê. Aberto pra quem tiver o link — sem login. Toda mancada exige motivo.
+App Next.js para ranquear quem é o maior otário do rolê. Aberto pra quem tiver o link — sem login. Toda mancada exige motivo. Dá pra salvar o WhatsApp de cada um e declarar o #1 com uma mensagem pronta (`wa.me` — você só confirma o envio).
 
 ## Stack
 

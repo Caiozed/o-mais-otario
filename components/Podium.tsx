@@ -2,6 +2,7 @@
 
 import { type CSSProperties } from "react";
 import type { Friend } from "@/lib/types";
+import { whatsappDeclareUrl } from "@/lib/utils";
 import { Avatar } from "./Avatar";
 import { ScoreValue } from "./ScoreValue";
 
@@ -116,13 +117,33 @@ export function Podium({ friends, onEdit, onMotivo }: Props) {
               </div>
 
               {meta.place === 1 && (
-                <button
-                  type="button"
-                  onClick={() => onMotivo(friend, 1)}
-                  className="btn-press mt-3 w-full rounded-full bg-[#d4af37] px-3 py-2 text-sm font-semibold text-[#2a2108]"
-                >
-                  Registrar Nova Mancada
-                </button>
+                <div className="mt-3 space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => onMotivo(friend, 1)}
+                    className="btn-press w-full rounded-full bg-[#d4af37] px-3 py-2 text-sm font-semibold text-[#2a2108]"
+                  >
+                    Registrar Nova Mancada
+                  </button>
+                  {whatsappDeclareUrl(friend) ? (
+                    <a
+                      href={whatsappDeclareUrl(friend)!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-press flex w-full items-center justify-center rounded-full bg-[#25D366] px-3 py-2 text-sm font-semibold text-[#053b1c]"
+                    >
+                      Declarar no WhatsApp
+                    </a>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => onEdit(friend)}
+                      className="btn-press w-full rounded-full border border-[#25D366]/40 px-3 py-2 text-sm font-medium text-[#7ddea4]"
+                    >
+                      Add WhatsApp pra declarar
+                    </button>
+                  )}
+                </div>
               )}
             </article>
           );

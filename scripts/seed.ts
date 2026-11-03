@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { createClient } from "@libsql/client";
 import { SEED_FRIENDS } from "../lib/seed-friends";
+import { normalizePhone } from "../lib/utils";
 
 async function main() {
   const url = process.env.TURSO_DATABASE_URL ?? "file:local.db";
@@ -14,6 +15,7 @@ async function main() {
         name TEXT NOT NULL,
         status TEXT,
         avatar_url TEXT,
+        phone TEXT,
         score INTEGER NOT NULL DEFAULT 0,
         created_at TEXT NOT NULL DEFAULT (datetime('now')),
         updated_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -30,13 +32,23 @@ async function main() {
     "write"
   );
 
+  try {
+    await db.execute("ALTER TABLE friends ADD COLUMN phone TEXT");
+  } catch {
+    // already exists
+  }
+
   await db.execute("DELETE FROM incidents");
   await db.execute("DELETE FROM friends");
 
   for (const friend of SEED_FRIENDS) {
     await db.execute({
-      sql: "INSERT INTO friends (name, status, score) VALUES (?, ?, 0)",
-      args: [friend.name, friend.status ?? null],
+      sql: "INSERT INTO friends (name, status, phone, score) VALUES (?, ?, ?, 0)",
+      args: [
+        friend.name,
+        friend.status ?? null,
+        normalizePhone(friend.phone) ?? null,
+      ],
     });
   }
 

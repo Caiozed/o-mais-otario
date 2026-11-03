@@ -8,9 +8,7 @@ export function getDb(): Client {
   const url = process.env.TURSO_DATABASE_URL ?? "file:local.db";
   const authToken = process.env.TURSO_AUTH_TOKEN;
 
-  client = createClient(
-    authToken ? { url, authToken } : { url }
-  );
+  client = createClient(authToken ? { url, authToken } : { url });
 
   return client;
 }
@@ -23,6 +21,7 @@ export async function ensureSchema(db: Client = getDb()) {
         name TEXT NOT NULL,
         status TEXT,
         avatar_url TEXT,
+        phone TEXT,
         score INTEGER NOT NULL DEFAULT 0,
         created_at TEXT NOT NULL DEFAULT (datetime('now')),
         updated_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -40,4 +39,11 @@ export async function ensureSchema(db: Client = getDb()) {
     ],
     "write"
   );
+
+  // Existing DBs created before `phone` existed
+  try {
+    await db.execute("ALTER TABLE friends ADD COLUMN phone TEXT");
+  } catch {
+    // column already exists
+  }
 }

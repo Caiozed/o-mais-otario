@@ -3,6 +3,7 @@ export type Friend = {
   name: string;
   status: string | null;
   avatar_url: string | null;
+  phone: string | null;
   score: number;
   created_at: string;
   updated_at: string;
@@ -21,6 +22,7 @@ export type FriendInput = {
   name: string;
   status?: string | null;
   avatarUrl?: string | null;
+  phone?: string | null;
   score?: number;
 };
 

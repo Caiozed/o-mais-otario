@@ -11,6 +11,14 @@ const url = process.env.TURSO_DATABASE_URL ?? "file:/data/local.db";
 const authToken = process.env.TURSO_AUTH_TOKEN;
 const db = createClient(authToken ? { url, authToken } : { url });
 
+function normalizePhone(phone) {
+  const digits = String(phone ?? "").replace(/\D/g, "");
+  if (!digits) return null;
+  if (digits.startsWith("55") && digits.length >= 12) return digits;
+  if (digits.length >= 10 && digits.length <= 11) return `55${digits}`;
+  return digits;
+}
+
 await db.batch(
   [
     `CREATE TABLE IF NOT EXISTS friends (
@@ -18,6 +26,7 @@ await db.batch(
       name TEXT NOT NULL,
       status TEXT,
       avatar_url TEXT,
+      phone TEXT,
       score INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -34,19 +43,30 @@ await db.batch(
   "write"
 );
 
-const count = await db.execute("SELECT COUNT(*) AS c FROM friends");
-const existing = Number(count.rows[0]?.c ?? 0);
-
-if (existing > 0) {
-  console.log(`DB already has ${existing} friends — skip seed`);
-  process.exit(0);
+try {
+  await db.execute("ALTER TABLE friends ADD COLUMN phone TEXT");
+} catch {
+  // already exists
 }
 
+const existing = await db.execute("SELECT name FROM friends");
+const names = new Set(existing.rows.map((r) => String(r.name)));
+
+let added = 0;
 for (const friend of friends) {
+  if (names.has(friend.name)) continue;
   await db.execute({
-    sql: "INSERT INTO friends (name, status, score) VALUES (?, ?, 0)",
-    args: [friend.name, friend.status ?? null],
+    sql: "INSERT INTO friends (name, status, phone, score) VALUES (?, ?, ?, 0)",
+    args: [friend.name, friend.status ?? null, normalizePhone(friend.phone)],
   });
+  names.add(friend.name);
+  added += 1;
 }
 
-console.log(`Seeded ${friends.length} friends into ${url}`);
+if (added === 0 && existing.rows.length > 0) {
+  console.log(`DB already has ${existing.rows.length} friends — nothing new to seed`);
+} else if (existing.rows.length === 0) {
+  console.log(`Seeded ${friends.length} friends into ${url}`);
+} else {
+  console.log(`Added ${added} missing friend(s); total names now ${names.size}`);
+}

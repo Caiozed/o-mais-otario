@@ -20,6 +20,7 @@ export function FriendFormModal({ open, onClose, friend }: Props) {
   const [name, setName] = useState("");
   const [status, setStatus] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [phone, setPhone] = useState("");
   const [score, setScore] = useState("0");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -29,6 +30,7 @@ export function FriendFormModal({ open, onClose, friend }: Props) {
     setName(friend?.name ?? "");
     setStatus(friend?.status ?? "");
     setAvatarUrl(friend?.avatar_url ?? "");
+    setPhone(friend?.phone ?? "");
     setScore(String(friend?.score ?? 0));
     setError(null);
   }, [open, friend]);
@@ -43,10 +45,11 @@ export function FriendFormModal({ open, onClose, friend }: Props) {
             name,
             status,
             avatarUrl,
+            phone,
             score: Number(score),
           });
         } else {
-          await createFriend({ name, status, avatarUrl });
+          await createFriend({ name, status, avatarUrl, phone });
         }
         onClose();
       } catch (err) {
@@ -73,7 +76,7 @@ export function FriendFormModal({ open, onClose, friend }: Props) {
       open={open}
       onClose={onClose}
       title={isEdit ? "Editar amigo" : "Adicionar amigo"}
-      subtitle="Nome, status e URL do avatar. Tudo editável depois."
+      subtitle="Nome, WhatsApp e avatar. Tudo editável depois."
     >
       <form onSubmit={submit}>
         <label className="block text-xs uppercase tracking-wide text-white/45">
@@ -84,6 +87,17 @@ export function FriendFormModal({ open, onClose, friend }: Props) {
             onChange={(e) => setName(e.target.value)}
             className="mt-1 w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 text-sm text-white outline-none focus:border-[#d4af37]"
             placeholder="Ex: Thiago"
+          />
+        </label>
+
+        <label className="mt-3 block text-xs uppercase tracking-wide text-white/45">
+          WhatsApp (com DDD)
+          <input
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            className="mt-1 w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 text-sm text-white outline-none focus:border-[#d4af37]"
+            placeholder="Ex: 11999998888"
           />
         </label>
 

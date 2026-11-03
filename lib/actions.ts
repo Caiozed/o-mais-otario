@@ -5,6 +5,7 @@ import { ensureSchema, getDb } from "./db";
 import { countFriends } from "./queries";
 import type { FriendInput } from "./types";
 import { MAX_FRIENDS } from "./types";
+import { normalizePhone } from "./utils";
 
 function clean(value?: string | null) {
   const trimmed = value?.trim() ?? "";
@@ -60,9 +61,14 @@ export async function createFriend(input: FriendInput) {
   const db = getDb();
   await ensureSchema(db);
   await db.execute({
-    sql: `INSERT INTO friends (name, status, avatar_url, score)
-          VALUES (?, ?, ?, 0)`,
-    args: [name, clean(input.status), clean(input.avatarUrl)],
+    sql: `INSERT INTO friends (name, status, avatar_url, phone, score)
+          VALUES (?, ?, ?, ?, 0)`,
+    args: [
+      name,
+      clean(input.status),
+      clean(input.avatarUrl),
+      normalizePhone(input.phone),
+    ],
   });
 
   revalidatePath("/");
@@ -74,17 +80,19 @@ export async function updateFriend(id: number, input: FriendInput) {
 
   const db = getDb();
   await ensureSchema(db);
+  const phone = normalizePhone(input.phone);
 
   if (typeof input.score === "number" && Number.isFinite(input.score)) {
     await db.execute({
       sql: `UPDATE friends
-            SET name = ?, status = ?, avatar_url = ?, score = ?,
+            SET name = ?, status = ?, avatar_url = ?, phone = ?, score = ?,
                 updated_at = datetime('now')
             WHERE id = ?`,
       args: [
         name,
         clean(input.status),
         clean(input.avatarUrl),
+        phone,
         Math.round(input.score),
         id,
       ],
@@ -92,10 +100,10 @@ export async function updateFriend(id: number, input: FriendInput) {
   } else {
     await db.execute({
       sql: `UPDATE friends
-            SET name = ?, status = ?, avatar_url = ?,
+            SET name = ?, status = ?, avatar_url = ?, phone = ?,
                 updated_at = datetime('now')
             WHERE id = ?`,
-      args: [name, clean(input.status), clean(input.avatarUrl), id],
+      args: [name, clean(input.status), clean(input.avatarUrl), phone, id],
     });
   }
 
