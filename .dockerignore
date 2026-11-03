@@ -1,0 +1,16 @@
+node_modules
+.next
+.git
+.gitignore
+*.md
+.env*
+!.env.example
+*.db
+*.db-*
+.vercel
+.cursor
+agent-transcripts
+assets
+npm-debug.log*
+Dockerfile*
+docker-compose*.yml

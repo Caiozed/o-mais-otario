@@ -1,0 +1,29 @@
+services:
+  app:
+    image: node:22-bookworm-slim
+    container_name: ranking-da-canalhice
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    environment:
+      TURSO_DATABASE_URL: file:/data/local.db
+      PORT: "3000"
+      HOSTNAME: 0.0.0.0
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: "300"
+      WATCHPACK_POLLING_INTERVAL: "300"
+    volumes:
+      - .:/app
+      - ranking_node_modules:/app/node_modules
+      - ranking-data:/data
+    # nodemon --legacy-watch faz polling: Docker no Windows não dispara inotify
+    command: >
+      sh -c "npm install &&
+             node scripts/docker-seed.mjs &&
+             npm run dev:docker"
+    restart: unless-stopped
+
+volumes:
+  ranking-data:
+  ranking_node_modules:
