@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { DM_Sans, Syne } from "next/font/google";
+import { SeizedOverlay } from "@/components/SeizedOverlay";
 import "./globals.css";
 
 const display = Syne({
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${display.variable} ${sans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-[family-name:var(--font-sans)]">
+        <SeizedOverlay />
         {children}
       </body>
     </html>
